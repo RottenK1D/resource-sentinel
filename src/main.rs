@@ -1,11 +1,12 @@
-use axum::{routing::get, Router, Server, extract::State};
+use axum::{routing::get, Router, Server, extract::State, Json, response::IntoResponse};
 use sysinfo::{System, SystemExt, CpuExt};
-use std::{fmt::Write, sync::{Arc, Mutex}};
+use std::sync::{Arc, Mutex};
 
 #[tokio::main]
 async fn main() {
     let router = Router::new()
         .route("/", get(root))
+        .route("/api/cpu", get(get_cpu))
         .with_state(AppState {
             sys: Arc::new(Mutex::new(System::new()))
         });
@@ -24,17 +25,15 @@ struct AppState {
 }
 
 
-async fn root(State(state): State<AppState>) -> String{
-    let mut s = String::new();   
+async fn root() -> &'static str{
+    "HELLO AXUM"
+}
+
+#[axum::debug_handler]
+async fn get_cpu(State(state): State<AppState>) -> impl IntoResponse{
     let mut sys = state.sys.lock().unwrap();
     sys.refresh_cpu();
-
-    for (i, cpu) in sys.cpus().iter().enumerate() {
-        let i  = i + 1;
-        
-        let usage =  cpu.cpu_usage();
-        writeln!(&mut s , "CPU {i} {usage}%").unwrap();
-    }
     
-    return s;
+    let v:Vec<_> = sys.cpus().iter().map(|cpu| cpu.cpu_usage()).collect();
+    Json(v)
 }
