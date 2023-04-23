@@ -8,7 +8,7 @@ use tokio::fs::read_to_string;
 async fn main() {
     let router = Router::new()
         .route("/", get(root))
-        .route("/index.js", get(get_js))
+        .route("/index.mjs", get(get_mjs))
         .route("/api/cpu", get(get_cpu))
         .with_state(AppState {
             sys: Arc::new(Mutex::new(System::new()))
@@ -34,8 +34,8 @@ async fn root() -> impl IntoResponse{
 }
 
 #[axum::debug_handler]
-async fn get_js() -> impl IntoResponse{
-    let markup = read_to_string("src/index.js").await.unwrap();
+async fn get_mjs() -> impl IntoResponse{
+    let markup = read_to_string("src/index.mjs").await.unwrap();
 
     Response::builder()
         .header("content-type", "application/javascript;charset=utf-8")
