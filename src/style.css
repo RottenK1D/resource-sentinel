@@ -1,0 +1,34 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@700&family=Vina+Sans&display=swap");
+body {
+  font-family: "Roboto mono", monospace;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  width: 100%;
+  background-color: #191825;
+  display: flex;
+  flex-flow: column;
+}
+
+.outer {
+  margin: auto;
+  width: 300px;
+  display: flex;
+  text-align: center;
+  justify-content: space-between;
+}
+
+.cpu,
+.cores {
+  color: #f7f1e5;
+  font-size: 40px;
+}
+
+h1 {
+  text-align: center;
+  margin: auto;
+  width: 500px;
+  color: #f7f1e5;
+  font-size: 60px;
+  padding: 50px;
+}

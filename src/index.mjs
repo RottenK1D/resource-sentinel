@@ -1,24 +1,32 @@
-import { h, Component, render } from "https://esm.sh/preact";
+import { h, render } from "https://esm.sh/preact";
+import htm from "https://unpkg.com/htm?module";
 
-document.addEventListener("DOMContentLoaded", () => {
-  let counter = 0;
+// Initialize htm with Preact
+const html = htm.bind(h);
 
-  async function fetchCpuData() {
-    try {
-      const response = await fetch("/api/cpu");
-      if (response.status !== 200) {
-        throw new Error(`HTTP error! satus: ${response.status}`);
-      }
+function App(props) {
+  return html`
+    <h1>LIVE CPU MONITOR</h1>
+    <div>
+      ${props.cpus.map((cpu, i) => {
+        i++;
+        return html`
+          <div class="outer">
+            <div class="cores">CPU ${i}</div>
+            <div class="cpu">${cpu.toFixed(1)} %</div>
+          </div>
+        `;
+      })}
+    </div>
+  `;
+}
 
-      const jsonData = await response.json();
-      counter++;
+let url = new URL("/realtime/cpu", window.location.href);
 
-      const app = h("pre", null, JSON.stringify(jsonData, null, 2));
-      render(app, document.body);
-    } catch (error) {
-      console.error("Error fetching CPU data: ", error);
-    }
-  }
+url.protocol = url.protocol.replace("http", "ws");
 
-  setInterval(fetchCpuData, 1000);
-});
+let ws = new WebSocket(url.href);
+ws.onmessage = (ev) => {
+  let json = JSON.parse(ev.data);
+  render(html`<${App} cpus=${json}></${App}>`, document.body);
+};
